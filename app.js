@@ -14,27 +14,35 @@ client.on("ready", () => {
     });
     
     console.log("Ready to verify");
-    
+
 });
 
 
-client.on('message', message => {
+client.on('guildMemberAdd', (member) => {
+    
+	let channel = member.guild.channels.filter(c => c.type === 'text').find(x => x.position == 0);
+    if (!channel) return;
+    
+    let content = "**Bienvenido al servidor" + member.guild.name + "**" +
+                  "\n\nPuedes encontrar todas las reglas del servidor en <#692074424849137695>" +
+                  "\n\nQue lo pases bien!😄";
 
-    if (message.author.bot) return;
-
-    let link = 'https://discordapp.com/oauth2/authorize?client_id='+ config.clientid +'&permissions=8&scope=bot';
-
-	const embedMessage = new Discord.RichEmbed()
-            .setColor('#0099ff')
-            .setTitle('Invite link')
-            .setURL(link)
-            .setAuthor('CataBOTVerificar', 'https://i.imgur.com/FrOPSdc.jpg', 'https://github.com/CatalaHD/DiscordBotVerificar')
-            .setDescription('Aqui tens el link')
-            .setThumbnail('https://i.imgur.com/FrOPSdc.jpg')
-            .setTimestamp()
-            .setFooter('Convida amb precaució');
-
-	message.author.send(embedMessage).catch(console.error);
+    channel.send(content).then( async (msg) => {
+        await msg.react("✅");
+        const filter = (reaction, user) => reaction.emoji.name === '✅' && user.id === member.user.id;
+        msg.awaitReactions(filter, { time: 15000, max: 1 }).then(async collected => {
+            if (collected.size == 1) {
+                let role = msg.guild.roles.find(role => role.name === "Verificado");
+                member.addRole(role);
+            } else {
+                let kickAware = "Te has estado demasiado tiempo sin verificar! :(";
+                await member.user.send(kickAware);
+                await member.kick(kickAware);
+            }
+            await msg.delete();
+        })
+        .catch(console.error);
+    });
 
 });
 
