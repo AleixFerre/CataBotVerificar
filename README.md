@@ -1,19 +1,12 @@
 # CataBotVerificar
 BETA Discord bot that is used for verifying users automatically
 
-## To keep it up to date:
+## Installation of the packages:
 
 Dowload it and download dependencies with
 ``` 
+# only works for this version
 npm install --save discord.js@^11.5.1
-```
-
-## **COMANDS**
-
-Envia un missatge que, al reaccionar, et dona el rol de verificat
-
-```
--> !invite			:: T'envia un missatge amb el invite link del bot.
 ```
 
 ## CURRENT VERSION

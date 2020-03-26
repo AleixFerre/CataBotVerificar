@@ -24,8 +24,9 @@ client.on('guildMemberAdd', (member) => {
     if (!channel) return;
     
     let content = "**Bienvenido al servidor" + member.guild.name + "**" +
-                  "\n\nPuedes encontrar todas las reglas del servidor en <#692074424849137695>" +
-                  "\n\nQue lo pases bien!😄";
+                  "\n---------------------------------------" +
+                  "\nPuedes encontrar todas las reglas del servidor en <#692074424849137695>" +
+                  "\n\nPara verificar reacciona a este mensaje clicando en el ✅";
 
     channel.send(content).then( async (msg) => {
         await msg.react("✅");
@@ -34,6 +35,7 @@ client.on('guildMemberAdd', (member) => {
             if (collected.size == 1) {
                 let role = msg.guild.roles.find(role => role.name === "Verificado");
                 member.addRole(role);
+				console.log(member.user.username + " s'ha verificat!");
             } else {
                 let kickAware = "Te has estado demasiado tiempo sin verificar! :(";
                 await member.user.send(kickAware);
