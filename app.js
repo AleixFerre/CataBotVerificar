@@ -8,34 +8,33 @@ client.on("ready", () => {
     client.user.setPresence({
         status: "online",
         game: {
-            name: client.guilds.size + " servers.",
-            type: "WATCHING"
+            name: "verificar.",
+            type: "PLAYING"
         }
-	});
-
-	console.log("READY :: Version " + config.version +
-				"\nON " + client.guilds.size + " servers\n" +
-				"---------------------------------");
+    });
+    
+    console.log("Ready to verify");
+    
 });
 
 
 client.on('message', message => {
 
-	if (message === "!invite") {
-		let link = 'https://discordapp.com/oauth2/authorize?client_id='+ config.clientid +'&permissions=8&scope=bot';
+    if (message.author.bot) return;
 
-        const embedMessage = new Discord.RichEmbed()
+    let link = 'https://discordapp.com/oauth2/authorize?client_id='+ config.clientid +'&permissions=8&scope=bot';
+
+	const embedMessage = new Discord.RichEmbed()
             .setColor('#0099ff')
             .setTitle('Invite link')
             .setURL(link)
-            .setAuthor('CataBOT', 'https://i.imgur.com/UXoPSuU.jpg', 'https://github.com/CatalaHD/DiscordBot')
+            .setAuthor('CataBOTVerificar', 'https://i.imgur.com/FrOPSdc.jpg', 'https://github.com/CatalaHD/DiscordBotVerificar')
             .setDescription('Aqui tens el link')
-            .setThumbnail('https://i.imgur.com/UXoPSuU.jpg')
+            .setThumbnail('https://i.imgur.com/FrOPSdc.jpg')
             .setTimestamp()
             .setFooter('Convida amb precaució');
 
-        message.author.send(embedMessage).catch(console.error);
-	}
+	message.author.send(embedMessage).catch(console.error);
 
 });
 

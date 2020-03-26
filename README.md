@@ -5,7 +5,7 @@ BETA Discord bot that is used for verifying users automatically
 
 Dowload it and download dependencies with
 ``` 
-npm install --save discord.js
+npm install --save discord.js@^11.5.1
 ```
 
 ## **COMANDS**
