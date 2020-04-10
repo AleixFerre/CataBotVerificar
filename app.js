@@ -2,18 +2,24 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 
 const config = require("./config.json");
+let nUsers = 0;
 
 client.on("ready", () => {
+
+    client.guilds.forEach (guild => {
+        console.log(guild.name + ": " + guild.memberCount + " members");
+        nUsers += guild.memberCount;
+    });
 
     client.user.setPresence({
         status: "online",
         game: {
-            name: "verificar.",
-            type: "PLAYING"
+            name: nUsers + " usuarios verificados.",
+            type: "WATCHING"
         }
     });
     
-    console.log("Ready to verify");
+    console.log("Ready to verify " + nUsers + " users");
 
 });
 
@@ -31,11 +37,19 @@ client.on('guildMemberAdd', (member) => {
     channel.send(content).then( async (msg) => {
         await msg.react("✅");
         const filter = (reaction, user) => reaction.emoji.name === '✅' && user.id === member.user.id;
-        msg.awaitReactions(filter, { time: 15000, max: 1 }).then(async collected => {
+        msg.awaitReactions(filter, { time: 60000, max: 1 }).then(async collected => {
             if (collected.size == 1) {
                 let role = msg.guild.roles.find(role => role.name === "Verificado");
                 member.addRole(role);
-				console.log(member.user.username + " s'ha verificat!");
+                console.log(member.user.username + " s'ha verificat!");
+                nUsers++;
+                client.user.setPresence({
+                    status: "online",
+                    game: {
+                        name: nUsers + " usuarios verificados.",
+                        type: "WATCHING"
+                    }
+                });
             } else {
                 let kickAware = "Te has estado demasiado tiempo sin verificar! :(";
                 await member.user.send(kickAware);
@@ -46,6 +60,18 @@ client.on('guildMemberAdd', (member) => {
         .catch(console.error);
     });
 
+});
+
+client.on("guildMemberRemove", (member) => {
+    console.log(member.user.username + " ha marxat");
+    nUsers--;
+    client.user.setPresence({
+        status: "online",
+        game: {
+            name: nUsers + " usuarios verificados.",
+            type: "WATCHING"
+        }
+    });
 });
 
 client.login(config.token);
