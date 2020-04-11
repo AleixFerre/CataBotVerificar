@@ -23,13 +23,41 @@ client.on("ready", () => {
 
 });
 
+function getRandomColor() {
+    let letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+function sendWelcomeMessage(member) {
+
+    const description = "✅**TE HAS VERIFICADO CORRECTAMENTE EN EL SERVIDOR**✅\n" +
+    "Puedes encontrar todas las reglas del servidor en <#692074424849137695>" +
+    ". Puedes hablar de cualquier tema de conversación en <#692073250540486717>" +
+    ". También puedes usar un bot muy majo en <#692772616641183854>" +
+    ". El bot de Zoe está disponible en este servidor en el canal de <#698195409297735750>" +
+    "\nPasalo bien!";
+
+    const welcomeEmbed = new Discord.RichEmbed()
+    .setColor(getRandomColor())
+    .setTitle('👋Bienvenido/a a ' + member.guild.name + "!")
+    .setDescription(description)
+    .setThumbnail(member.guild.iconURL)
+    .setTimestamp().setFooter("CataBotVerificar 2020 © All rights reserved");
+
+    member.user.send(welcomeEmbed);
+}
+
 
 client.on('guildMemberAdd', (member) => {
 
     if (member.user.bot) {
         let role = member.guild.roles.find(role => role.name === "Verificado");
         member.addRole(role);
-        console.log("BOT: " + member.user.username + " s'ha verificat!");
+        console.log("[BOT] - " + member.user.username + " s'ha verificat!");
         nUsers++;
         client.user.setPresence({
             status: "online",
@@ -54,7 +82,8 @@ client.on('guildMemberAdd', (member) => {
                 if (collected.size == 1) {
                     let role = msg.guild.roles.find(role => role.name === "Verificado");
                     member.addRole(role);
-                    console.log(member.user.username + " s'ha verificat!");
+                    sendWelcomeMessage(member);
+                    console.log("[NORMAL] - " + member.user.username + " s'ha verificat!");
                     nUsers++;
                     client.user.setPresence({
                         status: "online",
@@ -76,7 +105,7 @@ client.on('guildMemberAdd', (member) => {
 });
 
 client.on("guildMemberRemove", (member) => {
-    console.log(member.user.username + " ha marxat");
+    console.log("[REMOVE] - " + member.user.username + " ha marxat");
     nUsers--;
     client.user.setPresence({
         status: "online",
