@@ -19,7 +19,7 @@ client.on("ready", () => {
         }
     });
     
-    console.log("Ready to verify " + nUsers + " users\n-----------------\n");
+    console.log("\nREADY :: Version: " + config.version + "\nON " + client.guilds.size + " servers\n" + nUsers + " users verified\n-----------------\n");
 
 });
 
@@ -51,7 +51,6 @@ function sendWelcomeMessage(member) {
     member.user.send(welcomeEmbed);
 }
 
-
 client.on('guildMemberAdd', (member) => {
 
     if (member.user.bot) {
@@ -70,7 +69,7 @@ client.on('guildMemberAdd', (member) => {
         let channel = member.guild.channels.filter(c => c.type === 'text').find(x => x.position == 0);
         if (!channel) return;
         
-        let content = "**Bienvenido al servidor" + member.guild.name + "**" +
+        let content = "**Bienvenido al servidor " + member.guild.name + "**" +
                     "\n---------------------------------------" +
                     "\nPuedes encontrar todas las reglas del servidor en <#692074424849137695>" +
                     "\n\nPara verificar reacciona a este mensaje clicando en el ✅";
@@ -114,6 +113,11 @@ client.on("guildMemberRemove", (member) => {
             type: "WATCHING"
         }
     });
+});
+
+client.on("disconnect", (event) => {
+	nUsers = 0;
+	console.log(`--------------- DISCONNECTING with code ${event.code}---------------\nReason: ${event.reason}\n---------------\n`);
 });
 
 client.login(config.token);
