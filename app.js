@@ -1,8 +1,13 @@
+const express = require("express");
 const Discord = require("discord.js");
 const client = new Discord.Client();
 
 const config = require("./config.json");
 let nUsers = 0;
+
+const expressApp = express();
+expressApp.get("/", (req, res) => res.json("OK"));
+expressApp.listen(process.env.PORT);
 
 client.on("ready", () => {
 
