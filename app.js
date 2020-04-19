@@ -1,5 +1,6 @@
 const express = require("express");
 const Discord = require("discord.js");
+const chalk = require("chalk");
 const client = new Discord.Client();
 
 const config = require("./config.json");
@@ -24,7 +25,7 @@ client.on("ready", () => {
         }
     });
     
-    console.log("\nREADY :: Version: " + config.version + "\nON " + client.guilds.size + " servers\n" + nUsers + " users verified\n-----------------\n");
+    console.log(chalk.greenBright("\nREADY :: Version: " + config.version + "\nON " + client.guilds.size + " servers\n" + nUsers + " users verified\n-----------------\n"));
 
 });
 
@@ -61,7 +62,7 @@ client.on('guildMemberAdd', (member) => {
     if (member.user.bot) {
         let role = member.guild.roles.find(role => role.name === "Verificado");
         member.addRole(role);
-        console.log("[BOT] - " + member.user.username + " s'ha verificat!");
+        console.log(chalk.blueBright("[BOT] - " + member.user.username + " s'ha verificat!"));
         nUsers++;
         client.user.setPresence({
             status: "online",
@@ -87,7 +88,7 @@ client.on('guildMemberAdd', (member) => {
                     let role = msg.guild.roles.find(role => role.name === "Verificado");
                     member.addRole(role);
                     sendWelcomeMessage(member);
-                    console.log("[NORMAL] - " + member.user.username + " s'ha verificat!");
+                    console.log(chalk.yellowBright("[NORMAL] - " + member.user.username + " s'ha verificat!"));
                     nUsers++;
                     client.user.setPresence({
                         status: "online",
@@ -109,7 +110,7 @@ client.on('guildMemberAdd', (member) => {
 });
 
 client.on("guildMemberRemove", (member) => {
-    console.log("[REMOVE] - " + member.user.username + " ha marxat");
+    console.log(chalk.redBright("[REMOVE] - " + member.user.username + " ha marxat"));
     nUsers--;
     client.user.setPresence({
         status: "online",
@@ -122,7 +123,7 @@ client.on("guildMemberRemove", (member) => {
 
 client.on("disconnect", (event) => {
 	nUsers = 0;
-	console.log(`--------------- DISCONNECTING with code ${event.code}---------------\nReason: ${event.reason}\n---------------\n`);
+	console.log(chalk.bgRed(`--------------- DISCONNECTING with code ${event.code}---------------\nReason: ${event.reason}\n---------------\n`));
 });
 
 client.login(config.token);
