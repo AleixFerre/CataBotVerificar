@@ -11,6 +11,7 @@ Dowload it and download dependencies with
 npm install discord.js@^11.5.1
 npm install chalk
 npm install express
+npm install canvas
 ```
 
 ## CURRENT VERSION

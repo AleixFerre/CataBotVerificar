@@ -1,26 +1,27 @@
 {
-  "name": "CataBOTVerificar",
-  "description": "Verification Discord Bot: CataBotVerificar",
-  "version": "1.0",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/CatalaHD/CataBotVerificar.git"
-  },
-  "keywords": [],
-  "author": "CatalaHD",
-  "license": "MIT",
-  "dependencies": {
-    "chalk": "^4.0.0",
-    "discord.js": "^11.5.1",
-    "express": "^4.17.1"
-  },
-  "bugs": {
-    "url": "https://github.com/CatalaHD/CataBotVerificar/issues"
-  },
-  "homepage": "https://github.com/CatalaHD/CataBotVerificar"
+    "name": "catabotverificar",
+    "description": "Verification Discord Bot: CataBotVerificar",
+    "version": "1.0",
+    "main": "app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node app.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/CatalaHD/CataBotVerificar.git"
+    },
+    "keywords": [],
+    "author": "CatalaHD",
+    "license": "MIT",
+    "dependencies": {
+        "canvas": "^2.6.1",
+        "chalk": "^4.0.0",
+        "discord.js": "^11.5.1",
+        "express": "^4.17.1"
+    },
+    "bugs": {
+        "url": "https://github.com/CatalaHD/CataBotVerificar/issues"
+    },
+    "homepage": "https://github.com/CatalaHD/CataBotVerificar"
 }

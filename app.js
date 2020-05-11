@@ -1,13 +1,9 @@
-const express = require("express");
 const Discord = require("discord.js");
 const chalk = require("chalk");
+const Canvas = require('canvas');
 const client = new Discord.Client();
 
 const config = require("./config.json");
-
-const expressApp = express();
-expressApp.get("/", (req, res) => res.json("OK"));
-expressApp.listen(process.env.PORT);
 
 client.on("ready", () => {
 
@@ -34,16 +30,16 @@ function getRandomColor() {
 
 function sendWelcomeMessage(member) {
 
-    const description = "✅**TE HAS VERIFICADO CORRECTAMENTE EN EL SERVIDOR**✅\n" +
-        "Puedes encontrar todas las reglas del servidor en <#692074424849137695>" +
-        ". Puedes hablar de cualquier tema de conversación en <#692073250540486717>" +
-        ". También puedes usar un bot muy majo en <#692772616641183854>" +
-        ". El bot de Zoe está disponible en este servidor en el canal de <#698195409297735750>" +
-        "\nPasalo bien!";
+    const description = "✅**T'HAS VERIFICAT CORRECTAMENT**✅\n" +
+        "Pots trobar totes les normes del servidor a <#692074424849137695>" +
+        ". També tens un xat general a <#692073250540486717>" +
+        ". Pots utilitzar el bot a <#692772616641183854>" +
+        ". Inclús hi ha la Zoe que et dirà info sobre les partides a <#698195409297735750>" +
+        "\nPasa'ho bé!";
 
     const welcomeEmbed = new Discord.RichEmbed()
         .setColor(getRandomColor())
-        .setTitle('👋Bienvenido/a a ' + member.guild.name + "!")
+        .setTitle('👋Benvingut/da a ' + member.guild.name + "!")
         .setDescription(description)
         .setThumbnail(member.guild.iconURL)
         .setTimestamp().setFooter("CataBOTVerificar 2020 © All rights reserved");
@@ -51,7 +47,101 @@ function sendWelcomeMessage(member) {
     member.user.send(welcomeEmbed);
 }
 
-client.on('guildMemberAdd', (member) => {
+function generateText(length) {
+    let result = '';
+    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+
+function invertColor(hex) {
+    if (hex.indexOf('#') === 0) {
+        hex = hex.slice(1);
+    }
+    // convert 3-digit hex to 6-digits.
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    if (hex.length !== 6) {
+        throw new Error('Invalid HEX color.');
+    }
+    // invert color components
+    var r = (255 - parseInt(hex.slice(0, 2), 16)).toString(16),
+        g = (255 - parseInt(hex.slice(2, 4), 16)).toString(16),
+        b = (255 - parseInt(hex.slice(4, 6), 16)).toString(16);
+    // pad each with zeros and return
+    return '#' + padZero(r) + padZero(g) + padZero(b);
+}
+
+function padZero(str, len) {
+    len = len || 2;
+    var zeros = new Array(len).join('0');
+    return (zeros + str).slice(-len);
+}
+
+function getRandomColor() {
+    let letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+function getRandomTransform() {
+    let max = 0.2;
+    return Math.random() * (max * 2) - max;
+}
+
+async function captcha(member, msg) {
+    let text = generateText(5);
+    let description = "Escriu pel xat el codi per verificar la teva conta (60 segons per respondre):";
+
+    const canvas = Canvas.createCanvas(200, 100);
+    const ctx = canvas.getContext('2d');
+
+    let bgColor = getRandomColor();
+
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.setTransform(1, getRandomTransform(), 0, 1, 0, 0);
+
+    ctx.font = '28px sans-serif';
+    let s = ctx.measureText(text);
+    ctx.fillStyle = invertColor(bgColor);
+    ctx.fillText(text, canvas.width / 2 - s.width / 2, canvas.height / 2);
+
+    const attachment = new Discord.Attachment(canvas.toBuffer(), 'captcha.png');
+
+    let message = await member.user.send(description, attachment);
+
+    // Await messages that fit the code
+    const filter = m => m.content === text && m.author.id === member.user.id;
+    // Errors: ['time'] treats ending because of the time limit as an error
+    message.channel.awaitMessages(filter, { max: 1, time: 60000, errors: ['time'] })
+        .then(async collected => { // S'ha respos correctament el codi
+
+            let role = member.guild.roles.find(role => role.name === "Verificado");
+            member.addRole(role);
+            sendWelcomeMessage(member);
+            msg.delete();
+
+            console.log(chalk.yellowBright("[ADD] - " + member.user.username + " s'ha verificat!"));
+
+        }).catch(async collected => { // Ha pasat el temps
+            console.log(collected);
+            let kickAware = "T'has estat massa temps sense verificar el Captcha! :(";
+            await member.user.send(kickAware);
+            await member.kick(kickAware);
+            msg.delete();
+        });
+
+}
+
+client.on('guildMemberAdd', async(member) => {
 
     if (member.user.bot) {
 
@@ -64,41 +154,9 @@ client.on('guildMemberAdd', (member) => {
         let channel = member.guild.channels.filter(c => c.type === 'text').find(x => x.position == 0);
         if (!channel) return;
 
-        let content = "**Bienvenido al servidor " + member.guild.name + "**" +
-            "\n---------------------------------------" +
-            "\nPuedes encontrar todas las reglas del servidor en <#692074424849137695>" +
-            "\n\nPara verificar reacciona a este mensaje clicando en el ✅";
+        let msg = await channel.send("<@" + member.id + "> `Mira els missatges directes per confirmar la teva identitat.`");
 
-        channel.send(content)
-            .then(async(msg) => {
-
-                await msg.react("✅");
-
-                const filter = (reaction, user) => reaction.emoji.name === '✅' && user.id === member.user.id;
-
-                msg.awaitReactions(filter, { time: 60000, max: 1 }) // 60s to verify
-                    .then(async collected => {
-
-                        if (collected.size == 1) {
-
-                            let role = msg.guild.roles.find(role => role.name === "Verificado");
-                            member.addRole(role);
-
-                            sendWelcomeMessage(member);
-                            console.log(chalk.yellowBright("[ADD] - " + member.user.username + " s'ha verificat!"));
-
-                        } else {
-
-                            let kickAware = "Te has estado demasiado tiempo sin verificar! :(";
-                            await member.user.send(kickAware);
-                            await member.kick(kickAware);
-
-                        }
-
-                        await msg.delete();
-                    })
-                    .catch(console.error);
-            });
+        captcha(member, msg);
     }
 });
 
