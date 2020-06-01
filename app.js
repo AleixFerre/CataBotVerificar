@@ -9,13 +9,13 @@ client.on("ready", () => {
 
     client.user.setPresence({
         status: "online",
-        game: {
+        activity: {
             name: "usuarios verificados.",
             type: "WATCHING"
         }
     });
 
-    console.log(chalk.greenBright("\nREADY :: Version: " + config.version + "\nON " + client.guilds.size + " servers\n-----------------\n"));
+    console.log(chalk.greenBright("\nREADY :: Version: " + config.version + "\nON " + client.guilds.cache.size + " servers\n-----------------\n"));
 
 });
 

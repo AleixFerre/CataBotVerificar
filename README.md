@@ -8,9 +8,8 @@ Dowload it and download dependencies with
 
 ```txt
 # only works for this version
-npm install discord.js@^11.5.1
+npm install discord.js
 npm install chalk
-npm install express
 npm install canvas
 ```
 
