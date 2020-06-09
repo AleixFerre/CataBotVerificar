@@ -1,9 +1,14 @@
-const Discord = require("discord.js");
 const chalk = require("chalk");
+const log = chalk.bold.green;
+const remove = chalk.bold.red;
+const bot = chalk.bold.blue;
+
 const Canvas = require('canvas');
+const Discord = require("discord.js");
 const client = new Discord.Client();
 
 const config = require("./config.json");
+const servers = require("../CataBOT/Storage/servers.json");
 
 client.on("ready", () => {
 
@@ -15,7 +20,7 @@ client.on("ready", () => {
         }
     });
 
-    console.log(chalk.greenBright("\nREADY :: Version: " + config.version + "\nON " + client.guilds.cache.size + " servers\n-----------------\n"));
+    console.log(log("\nREADY :: Version: " + config.version + "\nON " + client.guilds.cache.size + " servers\n-----------------\n"));
 
 });
 
@@ -30,14 +35,15 @@ function getRandomColor() {
 
 function sendWelcomeMessage(member) {
 
-    const description = "✅**T'HAS VERIFICAT CORRECTAMENT**✅\n" +
-        "Pots trobar totes les normes del servidor a <#692074424849137695>" +
-        ". També tens un xat general a <#692073250540486717>" +
-        ". Pots utilitzar el bot a <#692772616641183854>" +
-        ". Inclús hi ha la Zoe que et dirà info sobre les partides a <#698195409297735750>" +
-        "\nPasa'ho bé!";
+    let server = servers[member.guild.id];
 
-    const welcomeEmbed = new Discord.RichEmbed()
+    const description = "✅**T'HAS VERIFICAT CORRECTAMENT**✅\n" +
+        "Pots trobar totes les alertes del bot a <#" + server.alertChannel + ">" +
+        ". També pots usar el bot al canal <#" + server.botChannel + ">" +
+        ". Per veure les comandes del bot cal posar `" + server.prefix + "help`" +
+        "\nPasa'ho bé, " + member.user.username + "!";
+
+    const welcomeEmbed = new Discord.MessageEmbed()
         .setColor(getRandomColor())
         .setTitle('👋Benvingut/da a ' + member.guild.name + "!")
         .setDescription(description)
@@ -114,7 +120,7 @@ async function captcha(member, msg) {
     ctx.fillStyle = invertColor(bgColor);
     ctx.fillText(text, canvas.width / 2 - s.width / 2, canvas.height / 2);
 
-    const attachment = new Discord.Attachment(canvas.toBuffer(), 'captcha.png');
+    const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'captcha.png');
 
     let message = await member.user.send(description, attachment);
 
@@ -124,12 +130,12 @@ async function captcha(member, msg) {
     message.channel.awaitMessages(filter, { max: 1, time: 60000, errors: ['time'] })
         .then(async collected => { // S'ha respos correctament el codi
 
-            let role = member.guild.roles.find(role => role.name === "Verificado");
-            member.addRole(role);
-            sendWelcomeMessage(member);
             msg.delete();
+            let role = member.guild.roles.cache.find(role => role.name === "Verificado");
+            member.roles.add(role);
+            sendWelcomeMessage(member);
 
-            console.log(chalk.yellowBright("[ADD] - " + member.user.username + " s'ha verificat!"));
+            console.log(log("[ADD] - " + member.user.username + " s'ha verificat!"));
 
         }).catch(async collected => { // Ha pasat el temps
             console.log(collected);
@@ -145,13 +151,13 @@ client.on('guildMemberAdd', async(member) => {
 
     if (member.user.bot) {
 
-        let role = member.guild.roles.find(role => role.name === "Verificado");
-        member.addRole(role);
+        let role = member.guild.roles.cache.find(role => role.name === "Verificado");
+        member.roles.add(role);
 
-        console.log(chalk.blueBright("[BOT] - " + member.user.username + " s'ha verificat!"));
+        console.log(bot("[BOT] - " + member.user.username + " s'ha verificat!"));
 
     } else {
-        let channel = member.guild.channels.filter(c => c.type === 'text').find(x => x.position == 0);
+        let channel = member.guild.channels.cache.filter(c => c.type === 'text').find(x => x.position == 0);
         if (!channel) return;
 
         let msg = await channel.send("<@" + member.id + "> `Mira els missatges directes per confirmar la teva identitat.`");
@@ -162,7 +168,7 @@ client.on('guildMemberAdd', async(member) => {
 
 client.on("guildMemberRemove", (member) => {
 
-    console.log(chalk.redBright("[REMOVE] - " + member.user.username + " ha marxat"));
+    console.log(remove("[REMOVE] - " + member.user.username + " ha marxat"));
 
 });
 
